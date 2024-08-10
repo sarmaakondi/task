@@ -8,12 +8,14 @@ const getTasks = asyncHandler(async (req, res) => {
 });
 
 // Create task
-const setTask = asyncHandler((req, res) => {
+const setTask = asyncHandler(async (req, res) => {
     if (!req.body.text) {
         res.status(400);
         throw new Error("Task cannot be empty!");
     }
-    res.status(200).json({ message: "Task created." });
+
+    const task = await Task.create({ text: req.body.text });
+    res.status(200).json(task);
 });
 
 // Update task
