@@ -3,26 +3,44 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 
+// Helper function to handle errors
+const handleErrorResponse = (res, statusCode, message) => {
+    res.status(statusCode);
+    throw new Error(message);
+};
+
+// Genereate JWT token
+const generateJWTToken = (id) => {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+        throw new Error("JWT_SECRET is not defined in the environment");
+    }
+    return jwt.sign({ id }, secret, {
+        expiresIn: process.env.JWT_EXPIRATION || "3d",
+    });
+};
+
 // Register user
 const registerUser = asyncHandler(async (req, res) => {
     const { name, email, password } = req.body;
 
     // Check if all fields are provided
     if (!name || !email || !password) {
-        res.status(400);
-        throw new Error("All fields are mandatory");
+        return handleErrorResponse(res, 400, "All fields are mandatory");
     }
 
     // Check if the user already exists
     const userExists = await User.findOne({ email });
     if (userExists) {
-        res.status(400);
-        throw new Error("That email is already registered");
+        return handleErrorResponse(
+            res,
+            400,
+            "That email is already registered"
+        );
     }
 
     // Hash the password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create the user
     const user = await User.create({ name, email, password: hashedPassword });
@@ -35,8 +53,7 @@ const registerUser = asyncHandler(async (req, res) => {
             token: generateJWTToken(user.id),
         });
     } else {
-        res.status(400);
-        throw new Error("Invalid user data");
+        return handleErrorResponse(res, 400, "Invalid user data");
     }
 });
 
@@ -56,8 +73,7 @@ const loginUser = asyncHandler(async (req, res) => {
             token: generateJWTToken(user.id),
         });
     } else {
-        res.status(401);
-        throw new Error("Incorrect credentials");
+        return handleErrorResponse(res, 400, "Incorrect credentials");
     }
 });
 
@@ -65,9 +81,5 @@ const loginUser = asyncHandler(async (req, res) => {
 const getCurrentUser = asyncHandler(async (req, res) => {
     res.json({ message: "Current user details" });
 });
-
-const generateJWTToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "3d" });
-};
 
 module.exports = { registerUser, loginUser, getCurrentUser };
