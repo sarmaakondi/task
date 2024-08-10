@@ -41,7 +41,18 @@ const registerUser = asyncHandler(async (req, res) => {
 
 // Login user
 const loginUser = asyncHandler(async (req, res) => {
-    res.json({ message: "User login successful" });
+    const { email, password } = req.body;
+
+    // Find the user by email
+    const user = await User.findOne({ email });
+
+    // Check if user exists and password matches
+    if (user && (await bcrypt.compare(password, user.password))) {
+        return res.json({ _id: user.id, name: user.name, email: user.email });
+    } else {
+        res.status(401);
+        throw new Error("Incorrect credentials");
+    }
 });
 
 // Get current user
