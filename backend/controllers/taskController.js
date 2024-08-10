@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 
 // Get all tasks
 const getTasks = asyncHandler(async (req, res) => {
-    const tasks = await Task.find();
+    const tasks = await Task.find({ user: req.user.id });
     res.status(200).json(tasks);
 });
 
@@ -16,7 +16,7 @@ const setTask = asyncHandler(async (req, res) => {
         throw new Error("Task cannot be empty!");
     }
 
-    const task = await Task.create({ text });
+    const task = await Task.create({ text, user: req.user.id });
     res.status(200).json(task);
 });
 
