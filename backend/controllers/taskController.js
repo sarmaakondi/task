@@ -1,6 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const Task = require("../models/taskModel");
-const { default: mongoose } = require("mongoose");
+const mongoose = require("mongoose");
 
 // Get all tasks
 const getTasks = asyncHandler(async (req, res) => {
