@@ -79,7 +79,15 @@ const loginUser = asyncHandler(async (req, res) => {
 
 // Get current user
 const getCurrentUser = asyncHandler(async (req, res) => {
-    res.json({ message: "Current user details" });
+    // Find the user by ID from the request object
+    const user = await User.findById(req.user.id).select("-password");
+
+    if (!user) {
+        res.status(404);
+        throw new Error("User not found");
+    }
+
+    res.status(200).json({ id: user._id, name: user.name, email: user.email });
 });
 
 module.exports = { registerUser, loginUser, getCurrentUser };
