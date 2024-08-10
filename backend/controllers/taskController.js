@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const Task = require("../models/taskModel");
+const { default: mongoose } = require("mongoose");
 
 // Get all tasks
 const getTasks = asyncHandler(async (req, res) => {
@@ -19,8 +20,23 @@ const setTask = asyncHandler(async (req, res) => {
 });
 
 // Update task
-const updateTask = asyncHandler((req, res) => {
-    res.status(200).json({ message: `Task ${req.params.id} updated.` });
+const updateTask = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        res.status(400);
+        throw new Error("Task not found");
+    }
+
+    const task = await Task.findById(req.params.id);
+    if (!task) {
+        res.status(400);
+        throw new Error("Task not found");
+    }
+
+    const updatedTask = await Task.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+    });
+    res.status(200).json(updatedTask);
 });
 
 // Delete task
