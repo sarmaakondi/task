@@ -59,6 +59,17 @@ const deleteTask = asyncHandler(async (req, res) => {
         throw new Error("Task not found");
     }
 
+    const task = await Task.findById(id);
+    if (!task) {
+        res.status(404);
+        throw new Error("Task not found");
+    }
+
+    if (task.user.toString() !== req.user.id) {
+        res.status(403);
+        throw new Error("User is not authorized to delete this task");
+    }
+
     const deletedTask = await Task.findByIdAndDelete(id);
     if (!deletedTask) {
         res.status(404);
