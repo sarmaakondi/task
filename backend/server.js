@@ -6,7 +6,7 @@ const app = express();
 
 // Routes
 app.get("/api/tasks", (req, res) => {
-    res.send("Get all tasks");
+    res.status(200).json({ message: "Get all taks" });
 });
 
 app.listen(port, () =>
