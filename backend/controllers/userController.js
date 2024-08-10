@@ -32,6 +32,7 @@ const registerUser = asyncHandler(async (req, res) => {
             _id: user.id,
             name: user.name,
             email: user.email,
+            token: generateJWTToken(user.id),
         });
     } else {
         res.status(400);
@@ -48,7 +49,12 @@ const loginUser = asyncHandler(async (req, res) => {
 
     // Check if user exists and password matches
     if (user && (await bcrypt.compare(password, user.password))) {
-        return res.json({ _id: user.id, name: user.name, email: user.email });
+        return res.json({
+            _id: user.id,
+            name: user.name,
+            email: user.email,
+            token: generateJWTToken(user.id),
+        });
     } else {
         res.status(401);
         throw new Error("Incorrect credentials");
@@ -59,5 +65,9 @@ const loginUser = asyncHandler(async (req, res) => {
 const getCurrentUser = asyncHandler(async (req, res) => {
     res.json({ message: "Current user details" });
 });
+
+const generateJWTToken = (id) => {
+    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "3d" });
+};
 
 module.exports = { registerUser, loginUser, getCurrentUser };
