@@ -5,6 +5,10 @@ const getTasks = (req, res) => {
 
 // Create task
 const setTask = (req, res) => {
+    if (!req.body.text) {
+        res.status(400);
+        throw new Error("Task cannot be empty!");
+    }
     res.status(200).json({ message: "Task created." });
 };
 
