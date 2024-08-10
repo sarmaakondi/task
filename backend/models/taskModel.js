@@ -6,6 +6,11 @@ const taskSchema = new mongoose.Schema(
             type: String,
             required: [true, "Text cannot be empty"],
         },
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            ref: "User",
+        },
     },
     { timestamps: true }
 );
