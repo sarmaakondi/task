@@ -40,8 +40,21 @@ const updateTask = asyncHandler(async (req, res) => {
 });
 
 // Delete task
-const deleteTask = asyncHandler((req, res) => {
-    res.status(200).json({ message: `Task ${req.params.id} deleted.` });
+const deleteTask = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        res.status(400);
+        throw new Error("Task not found");
+    }
+
+    const task = await Task.findById(req.params.id);
+    if (!task) {
+        res.status(400);
+        throw new Error("Task not found");
+    }
+
+    await Task.findByIdAndDelete(req.params.id);
+    res.status(200).json({ id: req.params.id });
 });
 
 module.exports = { getTasks, setTask, updateTask, deleteTask };
